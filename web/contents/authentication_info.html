@@ -1,0 +1,55 @@
+<!--
+  ~ * Copyright (C) GPayments Pty Ltd - All Rights Reserved
+  ~ * Copying of this file, via any medium, is subject to the
+  ~ * ActiveServer End User License Agreement (EULA)
+  ~ *
+  ~ * Proprietary code for use in conjunction with GPayments products only
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ *
+  ~ * Written by GPayments <techsupport@gpayments.com>, 2020
+  ~
+  ~
+  -->
+
+<!--authenticationInfo-->
+<div id="authentication_info">
+  <br>
+  <h3 class="mb-3">3DS Requestor Authentication Information</h3>
+  <hr>
+  <dl class="row">
+
+    <dt class="col-sm-4">3DS Requestor Authentication Data</dt>
+    <dd class="col-sm-8">
+      <input type="text" id="threeDSReqAuthData" class="form-control"
+             value=""
+      />
+    </dd>
+    <dt class="col-sm-4">3DS Requestor Authentication Method</dt>
+    <dd class="col-sm-8">
+      <input type="text" id="threeDSReqAuthMethod" list="threeDSReqAuthMethodList"
+             class="form-control" value=""/>
+      <datalist id="threeDSReqAuthMethodList">
+        <option value="01">No 3DS Requestor authentication occurred (01)</option>
+        <option value="02">Login using 3DS Requestor’s own credentials (02)</option>
+        <option value="03">Login using federated ID (03)</option>
+        <option value="04">Login using issuer credentials (04)</option>
+        <option value="05">Login using third-party authentication (05)</option>
+        <option value="06">Login using FIDO Authenticator (06)</option>
+        <option value="07">Login using FIDO Authenticator (FIDO assurance data signed) (07)</option>
+        <option value="08">SRC Assurance Data (08)</option>
+      </datalist>
+    </dd>
+    <dt class="col-sm-4">3DS Requestor Authentication Timestamp</dt>
+    <dd class="col-sm-8">
+      <input type="text" id="threeDSReqAuthTimestamp" class="form-control"
+             value=""
+      />
+    </dd>
+  </dl>
+</div>
+

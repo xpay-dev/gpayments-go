@@ -1,0 +1,479 @@
+<!--
+  ~ * Copyright (C) GPayments Pty Ltd - All Rights Reserved
+  ~ * Copying of this file, via any medium, is subject to the
+  ~ * ActiveServer End User License Agreement (EULA)
+  ~ *
+  ~ * Proprietary code for use in conjunction with GPayments products only
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ *
+  ~ * Written by GPayments <techsupport@gpayments.com>, 2020
+  ~
+  ~
+  -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>3DSecure 2.0 Authentication</title>
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+        integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous">
+</head>
+<body>
+{{>contents/nav_bar}}
+
+<div class="container">
+
+
+  <div class="row h-100 card-row">
+    <div class="col-lg-9">
+
+      <div class="card">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="basicInfoTab" data-toggle="tab" href="#basicInfo"
+                 role="tab"
+                 aria-controls="basicInfo" aria-selected="true">Basic Info</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="cardholderInfoTab" data-toggle="tab" href="#cardholderInfo"
+                 role="tab"
+                 aria-controls="cardholderInfo" aria-selected="false">Cardholder</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="additionalInfoTab" data-toggle="tab" href="#additionalInfo"
+                 role="tab"
+                 aria-controls="additionalInfo" aria-selected="false">Additional Risk</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card-body">
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="basicInfo" role="tabpanel"
+                 aria-labelledby="basicInfoTab">
+              <div id="required-info-div">
+                {{>contents/channel}}
+
+                <div>
+                  <br>
+                  <h3 class="mb-3">Required Fields</h3>
+                  <hr>
+                  <dl class="row">
+
+                    <dt class="col-sm-4">Account Number <span class="required">*</span></dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="acctNumber" class="form-control"
+                             value="4100000000000100"
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Merchant ID <span class="required">*</span></dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="merchantId" class="form-control"
+                             value="123456789012345"
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">3RI Indicator <span class="required">*</span></dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="threeRIInd" list="threeRIIndList" class="form-control"
+                             value="01"/>
+                      <datalist id="threeRIIndList">
+                        <option value="01">Recurring transaction (01)</option>
+                        <option value="02">Instalment transaction (02)</option>
+                        <option value="03">Add card (03)</option>
+                        <option value="04">Maintain card information (04)</option>
+                        <option value="05">Account verification (05)</option>
+                        <option value="06">Split/delayed shipment (06)</option>
+                        <option value="07">Top-up (07)</option>
+                        <option value="08">Mail Order (08)</option>
+                        <option value="09">Telephone Order (09)</option>
+                        <option value="10">Whitelist status check (10)</option>
+                        <option value="11">Other payment (11)</option>
+                      </datalist>
+                    </dd>
+
+                    <dt class="col-sm-4">Message Category <span class="required">*</span></dt>
+                    <dd class="col-sm-8">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="messageCategoryForm"
+                               id="mess-cate-pa" value="pa">
+                        <label class="form-check-label" for="mess-cate-pa">Payment Auth</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="messageCategoryForm"
+                               id="mess-cate-npa" value="npa" checked>
+                        <label class="form-check-label" for="mess-cate-npa">Non-payment Auth</label>
+                      </div>
+                    </dd>
+
+                  </dl>
+                </div>
+                <hr class="mb-4"/>
+                <div>
+                  <br>
+                  <h3 class="mb-3">Additional Fields</h3>
+                  <hr>
+                  <dl class="row">
+                    <dt class="col-sm-4">Card Scheme Override</dt>
+                    <dd class="col-sm-8">
+                      <select id="cardScheme" class="form-control">
+                        <option value="" selected></option>
+                        <option value="EFTPOS">eftpos</option>
+                        <option value="MIR">Mir</option>
+                        <option value="BCARD">Bcard</option>
+                        <option value="UNIONPAY">UnionPay</option>
+                      </select>
+                    </dd>
+
+                    <dt class="col-sm-4">Account ID</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="acctID" class="form-control"
+                             value="personal account"
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Account Type</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="acctType" list="acctTypeList" class="form-control"
+                             value="03"/>
+                      <datalist id="acctTypeList">
+                        <option value="01">Not Applicable (01)</option>
+                        <option value="02">Credit (02)</option>
+                        <option value="03">Debit (03)</option>
+                      </datalist>
+                    </dd>
+
+                    <dt class="col-sm-4">Expiry Date (YYMM)</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="cardExpiryDate" class="form-control"
+                             value=""
+                      />
+                    </dd>
+                    <dt class="col-sm-4">Purchase Amount</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="purchaseAmount" class="form-control"
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Purchase Currency</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="purchaseCurrency" class="form-control"
+                      />
+                    </dd>
+                    <dt class="col-sm-4">Purchase Date</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="purchaseDate" class="form-control"
+                             value=""
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Purchase Instalment Data</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="purchaseInstalData" class="form-control"
+                             value=""
+                      />
+                    </dd>
+
+
+                    <dt class="col-sm-4">Transaction Type</dt>
+                    <dd class="col-sm-8">
+                      <select id="transType" class="form-control">
+                        <option value="" selected></option>
+                        <option value="01">Goods/Service Purchase (01)</option>
+                        <option value="03">Check Acceptance (03)</option>
+                        <option value="10">Account Funding (10)</option>
+                        <option value="11">Quasi-Cash Transaction (11)</option>
+                        <option value="28">Prepaid Activation and Load (28)</option>
+                      </select>
+                    </dd>
+                    <dt class="col-sm-4">Recurring Expiry</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="recurringExpiry" class="form-control"
+                             value=""
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Recurring Frequency</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="recurringFrequency" class="form-control"
+                             value=""
+                      />
+                    </dd>
+                    <dt class="col-sm-4">Overridden Merchant Name</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="merchantName" class="form-control" value=""/>
+                    </dd>
+
+                    <dt class="col-sm-4">3DS Requestor Decoupled Max Time</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="threeDSRequestorDecMaxTime" class="form-control"
+                             value=""/>
+                    </dd>
+
+                    <dt class="col-sm-4">3DS Requestor Decoupled Request Indicator</dt>
+                    <dd class="col-sm-8">
+                      <select id="threeDSRequestorDecReqInd" class="form-control">
+                        <option value="" selected></option>
+                        <option value="Y">Decoupled Authentication is supported and preferred (Y)
+                        </option>
+                        <option value="N">Do not use Decoupled Authentication (N)</option>
+                      </select>
+                    </dd>
+
+                    <dt class="col-sm-4">Whitelist Status</dt>
+                    <dd class="col-sm-8">
+                      <select id="whiteListStatus" class="form-control">
+                        <option value="" selected></option>
+                        <option value="Y">3DS Requestor is whitelisted by cardholder (Y)</option>
+                        <option value="N">3DS Requestor is not whitelisted by cardholder (N)
+                        </option>
+                        <option value="E">Not eligible as determined by issuer (E)</option>
+                        <option value="P">Pending confirmation by cardholder (P)</option>
+                        <option value="R">Cardholder rejected (R)</option>
+                        <option value="U">Whitelist status unknown, unavailable, or does not apply
+                          (U)
+                        </option>
+                      </select>
+                    </dd>
+
+                    <dt class="col-sm-4">Whitelist Status Source</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="whiteListStatusSource" class="form-control"
+                             value=""/>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="cardholderInfo" role="tabpanel"
+                 aria-labelledby="cardholderInfoTab">
+              <!--Cardholder Information -->
+              {{>contents/cardholder_info}}
+            </div>
+            <div class="tab-pane fade" id="additionalInfo" role="tabpanel"
+                 aria-labelledby="additionalInfoTab">
+              <div id="additional-info-div">
+                <!--AcctInfo-->
+                {{>contents/acct_info}}
+
+                {{>contents/prior_auth_info}}
+                <!--MerchantRiskIndicator-->
+                {{>contents/merchant_risk_indicator}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--Action Button-->
+    <div class="col-md-3 mb-4">
+      <ul class="list-group mb-3">
+        <div>
+          <div class="btn-group btn-block" id="do3DS">
+            <!--button to do 3ds method-->
+          </div>
+        </div>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+{{>contents/deps}}
+<script>
+  showActionButton("testButton", "Test 3RI", "onClick");
+
+  function onClick() {
+    var apiVersion = getApiVersion();
+    switch (apiVersion) {
+      case "v1":
+        goApiV1();
+        break;
+      case "v2":
+        goApiV2();
+        break;
+      default:
+        goApiV2();
+        break;
+    }
+  }
+
+  function goApiV1() {
+    var sessionData = genSessionData();
+
+    sessionStorage.setItem("sessionData", JSON.stringify(sessionData));
+
+    window.location.href = "/v1/process";
+  }
+
+  function goApiV2() {
+    var sessionData = genSessionData();
+    sessionData.authData.messageCategory = $("input[name=messageCategoryForm]:checked").val();
+    var messageVersion = $("input[name=messageVersionForm]:checked").val();
+    if (messageVersion) {
+      sessionData.authData.messageVersion = messageVersion;
+    }
+    sessionStorage.setItem("sessionData", JSON.stringify(sessionData));
+
+    window.location.href = "/v2/process";
+  }
+
+  function genSessionData() {
+    var sessionData = {};
+    sessionData.channel = "3ri";
+    sessionData.authData = genAuthData();
+    sessionData.backButtonType = "to3ri";
+    sessionData.transType = $("input[name=dsChannelForm]:checked").val();
+    return sessionData;
+  }
+
+  function genAuthData() {
+    var authData = {};
+
+    //Required fields
+    var acctNumber = $('#acctNumber').val();
+    if (acctNumber) {
+      authData.acctNumber = acctNumber;
+    }
+
+    var merchantId = $('#merchantId').val();
+    if (merchantId) {
+      authData.merchantId = merchantId;
+    }
+
+    var threeRIInd = $('#threeRIInd').val();
+    if (threeRIInd) {
+      authData.threeRIInd = threeRIInd;
+    }
+
+    //Additional Fields
+    var cardScheme = $('#cardScheme').val();
+    if (cardScheme) {
+      authData.cardScheme = cardScheme;
+    }
+
+    var acctID = $('#acctID').val();
+    if (acctID) {
+      authData.acctID = acctID;
+    }
+
+    var acctType = $('#acctType').val();
+    if (acctType) {
+      authData.acctType = acctType;
+    }
+
+    var cardExpiryDate = $('#cardExpiryDate').val();
+    if (cardExpiryDate) {
+      authData.cardExpiryDate = cardExpiryDate;
+    }
+
+    var priorTransID = $('#priorTransID').val();
+    if (priorTransID) {
+      authData.priorTransID = priorTransID;
+    }
+
+    var purchaseAmount = $('#purchaseAmount').val();
+    if (purchaseAmount) {
+      //use Math.round() to avoid problems of javascript processing decimal math
+      authData.purchaseAmount = Math.round(purchaseAmount * 100); //cent to dollar
+    }
+
+    var purchaseCurrency = $('#purchaseCurrency').val();
+    if (purchaseCurrency) {
+      authData.purchaseCurrency = purchaseCurrency;
+    }
+
+    var purchaseDate = $('#purchaseDate').val();
+    if (purchaseDate) {
+      authData.purchaseDate = purchaseDate;
+    }
+
+    var purchaseInstalData = $('#purchaseInstalData').val();
+    if (purchaseInstalData) {
+      authData.purchaseInstalData = purchaseInstalData;
+    }
+
+    var recurringExpiry = $('#recurringExpiry').val();
+    if (recurringExpiry) {
+      authData.recurringExpiry = recurringExpiry;
+    }
+
+    var recurringFrequency = $('#recurringFrequency').val();
+    if (recurringFrequency) {
+      authData.recurringFrequency = recurringFrequency;
+    }
+
+    var transType = $('#transType').val();
+    if (transType) {
+      authData.transType = transType;
+    }
+
+    // load merchantName
+    var merchantName = $('#merchantName').val();
+    if (merchantName) {
+      authData.merchantName = merchantName;
+    }
+    var threeDSRequestorDecMaxTime = $('#threeDSRequestorDecMaxTime').val();
+    if (threeDSRequestorDecMaxTime) {
+      authData.threeDSRequestorDecMaxTime = threeDSRequestorDecMaxTime;
+    }
+
+    var threeDSRequestorDecReqInd = $('#threeDSRequestorDecReqInd').val();
+    if (threeDSRequestorDecReqInd) {
+      authData.threeDSRequestorDecReqInd = threeDSRequestorDecReqInd;
+    }
+
+    var whiteListStatus = $('#whiteListStatus').val();
+    if (whiteListStatus) {
+      authData.whiteListStatus = whiteListStatus;
+    }
+
+    var whiteListStatusSource = $('#whiteListStatusSource').val();
+    if (whiteListStatusSource) {
+      authData.whiteListStatusSource = whiteListStatusSource;
+    }
+
+    //Cardholder Information
+    // load cardholder_info
+    var cardHolderInfo = getCardHolderInfo("3ri");
+    if (cardHolderInfo) {
+      authData.cardHolderInfo = cardHolderInfo
+    }
+
+    //Additional Information
+    // load acct_info
+    var acctInfo = getAcctInfo();
+    if (acctInfo) {
+      authData.acctInfo = acctInfo;
+    }
+    // load merchant_risk_indicator
+    var merchantRiskIndicator = getMerchantRiskIndicator();
+    if (merchantRiskIndicator) {
+      authData.merchantRiskIndicator = merchantRiskIndicator;
+    }
+
+    return authData;
+  }
+
+  $(document).ready(function () {
+    var apiVersion = getApiVersion();
+    updateActionButtonText(apiVersion, $("#testButton"), "Test 3RI");
+  });
+</script>
+
+</body>
+</html>

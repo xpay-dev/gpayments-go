@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>3DSecure 2.0 Authentication</title>
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/spinner.css"/>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+        integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous">
+</head>
+<body>
+
+{{>contents/nav_bar}}
+
+<div class="container">
+  <div class="row h-100 card-row">
+    <div class="col-sm-9">
+      <!--Cardholder Information -->
+      <div class="card">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="appTestInfoTab" data-toggle="tab" href="#appTestInfo"
+                 role="tab"
+                 aria-controls="appTestInfo" aria-selected="true">App Test Info</a>
+            </li>
+          </ul>
+        </div>
+
+
+        <div class="card-body">
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="appTestInfo" role="tabpanel"
+                 aria-labelledby="appTestInfoTab">
+              <div id="required-info-div">
+                {{>contents/channel}}
+              </div>
+
+              <h3 class="mb-3">Auth data</h3>
+              <dt class="text-secondary" style="margin-bottom: .5rem">
+                Below is the mock AReq for APP channel authentication. This data is only for
+                test/demo purposes. For a production authentication, APP auth requests must be
+                initiated by an integrated 3DS SDK.
+              </dt>
+              <hr>
+              <textarea class="form-control" id="inputArea" rows="15"
+                        aria-label="Json input"></textarea>
+              <br>
+              <div class="row">
+                <div class="col-md-6"><h3 class="mb-3">Response</h3></div>
+                <div class="col-md-6"><img class="w-25 float-right d-none" id="cardLogo" src=""
+                                           alt=""
+                                           style="height:50px"/></div>
+              </div>
+              <hr>
+              <div id="outputDiv" class="highlight">
+                <pre id="outputArea"></pre>
+              </div>
+              <div id="iframeDiv"></div>
+              <div id="spinner"
+                   class="spinner row h-20 justify-content-center align-items-center d-none">
+                <div class="col">
+                  <div class="sk-fading-circle">
+                    <div class="sk-circle1 sk-circle"></div>
+                    <div class="sk-circle2 sk-circle"></div>
+                    <div class="sk-circle3 sk-circle"></div>
+                    <div class="sk-circle4 sk-circle"></div>
+                    <div class="sk-circle5 sk-circle"></div>
+                    <div class="sk-circle6 sk-circle"></div>
+                    <div class="sk-circle7 sk-circle"></div>
+                    <div class="sk-circle8 sk-circle"></div>
+                    <div class="sk-circle9 sk-circle"></div>
+                    <div class="sk-circle10 sk-circle"></div>
+                    <div class="sk-circle11 sk-circle"></div>
+                    <div class="sk-circle12 sk-circle"></div>
+                  </div>
+                  <div class="text-center"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!--Action Button-->
+    <div class="col-sm-3 mb-4">
+      <div>
+        <button class="btn btn-primary btn-lg btn-block" id="testButton"
+                onclick="onClick()">Test App
+        </button>
+        <button class="btn btn-primary btn-lg btn-block d-none" id="processButton" type="button"
+                disabled>
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Processing...
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+<script src="/js/common.js"></script>
+<script src="/js/check-credit-card-type.js"></script>
+<script src="/js/v2/3ds-web-adapter.js"></script>
+<script>
+
+  var authData = {
+    acctNumber: "4100000000000100",
+    authenticationInd: "01",
+    merchantId: "123456789012345",
+    purchaseAmount: 66600,
+    purchaseCurrency: "036",
+    acctID: "personal account",
+    acctType: "01",
+    cardholderName: "Test Card",
+    cardExpiryDate: "2508",
+    transType: "01",
+    challengeInd: "01",
+    purchaseDate: "20200409093228",
+    messageCategory: "pa",
+  };
+
+  //Following sdkEncData, sdkEphemPubKey, and etc are only for test/demo purpose. In real application, APP auth requests must be initiated by an integrated SDK.
+  authData.sdkAppID = uuid_gen();
+  authData.sdkEncData = "eyJhbGciOiJSU0EtT0FFUC0yNTYiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0.JqClIquSCOxkOU1YWOSgg3LgtD0lURUh1wfH7gVLYHu8XeDhQxut9Xd4vLUFAs-o6FueheDFFrJsCdM4bgGZLDf8zw1fmNNrO3w9DLAtu4NiOdKyKhX28BH8U_6kThgUdyU_JSs4wthjstDaRl3oCQkhPomluTk7FwhxTJghOrQRK8IUNCX9JVNbFGKGMGoE9uwrCLdf6_Kqp5AVQo4ITMyNxatyLOp_cEv49kl2zbirXl0zxAktlg87l1m2Jz6Wb8IrDzxDJj8sVBzQyng-4svbHsggTHWJP1HwrFc_lOatoEsdbd7ZLRkFlNm3vHOpkTz1eNz4A_cbKXUsp9tqGg.2qYDauEr_yYq2w8RPN0E8g.0RwDbREV78JEWiKmUh5KKTsQflnd0665G9Zvdt_19_Phxk2VnwmHYnhsXXVkulfRiC8Tjer-ZmeR4x8uT9Z7qV3YWjSS1jXngH2HqUOGn3Y4_RU6CBoyL-QqWJAhq6QYw1u9o-tHgKVrPb2BCg5hObmVHV2shLRSLFFBBXKHipurDGaE7c_U1caEMiSjODbX_ZWrHCCCLIKHZMhvwFf4tpt-wP91q2kFVHnVSPpmitUNufLAh0VWwziEozID5-Lmf8jwbAH6_6biYd2_gb79kV648c22IWCmPTCDGEqzHag_jjKbaGEnIflgEFwzsT0i4TyVKfm5f8q9IBIz1MyBT_9uNfJi11sYYIJwEi7LfVCDw8Ha6330OorFQtUons1Kwt5c3eOXpdjXMp8F7dve8OcqNoQcmEh2cgwUd4YL8d45JWizPxd0J_I89s8wmmkyEGULIt5WoxMj_mL7OqL906UymUMIALui7qgcpbEq0fJpVNBud0ueHOnLXBo1g5PE0kFPyzi8oGsF0m4tfEsJSus3Ew4RqGam3E1spmvcPpF6-46TSM_Zu4QK-66ZuR-FRpeetg9WdEach0kT1h2JX_M2I7TeED3R9Si4RXSIX1VYC86pSg18dLdDVPSCDIJrtUFlY7z5blm0BAGfZ5hIKlqZol_LW246znlsOvA2-qFJSo6O2pIUpaNIoAOw4IRTEfq08BH3U6w2g-HqV-ax-vl3zUZxYsLedFVtwTVMdaF19Nt6eIUp27tlIBMtF58XpNSuWbtY8axg2sYMUQy5wZaILleF9o5xoyLHsMF9SqhkbnxFakl7_9Q5yh2CsA1BNWdOJSH8G4He_vPY7geY7kdRE_dcZantG6oHdAYRfiwkOyxVT_cqipTNJ3Z3-EmxHP7SmXuTuUYFDZfiNlACYyPhkt7sZr9l7OB1hcLxlRUykCYiAVCjU-YwusJELoix_n3zgvY0Db-8gF0fucaENitsIEd_SG-sc5eo7c4EpmbFXuZgxvXqsA7GV1_uE3898M_55QZYu9fBdlym9DtEPcvG16CVpVfCi8DOnSzKZrLeXJSUX3SCml8LymukVjvMnW6PUFM1DohBnmvmRm7qxrY2jXNZrjgjurZ2vPhrg5MzH58-ArG_C6DmK-5xCAoMWMzbYwpTPbcxqkUYtCOIPHU2pxf893YrIO4a022lbWrw9CMgzeDkGbDNFjHoH8zsSKiV1qjL8a-Wg0-wFAlr4PU57peJw6AaS___-0tk3zlKvGII2KwFiqvWywxWY5la7md0POtg9EgNjQOvEwMy2_wZlkLvQvZx0FHq9Ah6Fa_dHMgqwjg4hna_nZocqia0xiZ8oWdI4SnoULFGRMueHfshwh2YRS6TjPq-eLybvhuq7I8FVdr6FCS5DzFTbQzfFWEUctmoFn2R7DcJWId42wFVYmfaUyXr6KyeofflZxXKX6ZIkTNIlLSmBq3lUAMQWRfLr0PJ9blMwppj8WFu_WHZaCxalbOCbVUvamEs5anReVKwR7JUqoKl5cKPAwh7TMklTMiniRxzh24ZvgQAlTV4nxiCT7JiZBUnynr-84kaqNhdTTSLh2MhQDDbP1lJEcBg0aIZQ76zPlVJrp3Y3iuIQ7dBTBQbyLDl4YNDKGYuPe37Qlc35gWGVRDBfpwuH9L5l_8ZIxQr5wrQMftGvTcRypxkL1sP-69XOSwSfgvU4CUkI15_AZED2eOOUw5r7lcANKTnFIXdp_WNnBdjFmwHZhdZUIsJFnE3INtPcb_IviCALTizpLPHKt8uHS-UN9u0_X8KSZnVeOGERNKJokdYgAfIcC95R3W4RzmEIMrhELq4q_1fB8T08SZzD72EXi_ioDVXZgfBgeDn-zIDKUakvtFQtUPSNRcqmz6qvbZwYVB7zR1gPm4ZpfzXsGUKnvGGMMXf62HZz2hyaIw9krF8dpUnXNuYnbOGIdkkoQ5vk8OiOu0w2dFgMtwYY1HdmUhIWq6g9ziQYl9IoghTsBeDkoL0_JQaDagWrkf9f38YeBPUCSoznP1tX-AkSAO1lXF2FEX_2tZLONx3RV3a1gfdeeiKax_3Yx0ar9FGyvFGr0RsNFvg7xhUpQBI3tbXiyN1aMCXm-F3hH3P_SNNd8iItfWR1ziswCtq7WcOOV_-L4xmvI_CgKIWVpWTbEg_EJWCWCIbBuxiHuYFBlYoH8JKgLcPUN_LNZcQqW7X5AlUbhJmUa7A5tQa7IL4B2uNBtqCd-Afws9o5Ur23KDkflILzPAFKn2tQ98oCRsOmaAHtmkQYpOpNOYyZvbqz0N1VACZ80T7NH4aKdtuou7XKAZki38YID2gnyuckqXRduJsMoezKr8z27mAHxqLrfWsdLKHmVLdjphVDN_Vdei2ujms2p-_XuOPnnA8ZRM0NKDTIN1kFxEqyb4JZsEAgu7t1D5ETdw1PFzjkJCETtrG0-3HlM96nFg_OT2lvbuhlhqRigL0gEO5DgTRsnel0wV-QvW9q9JmY9OQJy6FwQvhFy9PDBBPGGPZE05cqf21cXayT16PM4YV-_NSFz8DQcoEqDDxZOdQF4bqaEb8tkXYNYgNyN2Y9ZcT_84JdDPVb73-b9c5v_e4mdby_pZKPHgsmEfFE0yYElGiw4BCKoo6xQd88GJ4raspCdNTefQ0jPG9V-YOJxiHJ9n9d3v8eSUnh2EJQos5hCgkWG7Nk5JrkoGswxT5Jm2PsD3upW5IlrEAIp4zdIEkkMn66W-ssLdPdYICEo4cE-RokSDbukmnTjCWwbMgLow6AKdZuha_JBAqny1ub2DYpqTZXQiRZmr-w3KmYqxTO73tXmW_n19Rp2TfTwwKk3e2UOqwAY7Rm-Erm-QB4t8Z5nh-afwtAfEQayK3caNkHa6ziLlORK67oWAeP0X2KzOqE4gBclsRG39kOEitsqt2RaIrf-DQFpu8cxLQ1jCU_LmYWDYSN0K92p1e_7CINhpZSvrIkvd4GqbsvhO8w8oM03DnLAmrCytWoVatdsvII8-j0wHhO3xTiSNfHIPTgP6y9alu6KF3TsqkzaGOzcJxrv9zpoG3sp_xFasMiLn4LDNmKl4-f1Ox4v-j5a9w7wo_8TD3Cd0MMPkSaObbzyTv5WxTdXva3-QT4aQ6JNYK47s4VIGuva4d35um2QyJkLCw0Fjtihcvyzapsqlr7qk4KImStg9Z3d0aMEYIPb7Us0T2hV34mYBApUJhVgv3EzFq7ML_LOrEMiaAjKtqkydaTi9mM8Ik8TGOGKZ8x4TT1qrIxBsWoBDR64iiC2FMEM4IHFmY5c5r9hP2yQPP4Ihljqx9r5nwZbC7b9NdO2N0b6b76uJQWoXWtdw3pH6CH8UVOsw3whQqGPMhVmTywGjfwijB7fsuTeHn_wolW8er6a7U62jOGit2uatXJFfybd9WxAE8ehyQjEVhYfCBYRqoaNsFl1Gxs_xQ-4eeXGptLSlgbqng-dSe9QRSp_BLBskmoJ3B803l5D7TSoyO2MFtwabzhhG2SiruwpQqiFAmZNNzVGnS0HgD0OekQqdMC1qlnwxXFbBEmFyjm5VUiKjJbnHTQkcAbH81zPsdkXbKb9kP_gYZZsUtSuz64IevSuehHA1iZcR11Yx5ZQ0jyCccXyoHh5GaTysYlj9rI7dkxBdXcQwgxylIQ9M9AzTLxpSusdMZ-4KBZ3hgtC5nWQlOsgeLDjdxZqfo5F9uj1loJsNKu0UtnENVeWK0v2Uf4XQgT8PSSFdEkPkl5zB_qjE4ly2kUSKKPCKQfW1rP0rRe8NsTtdpcwsn8lqRSA8-U3R35DnB-A53GCoYEhFB-yNupPBOtORs74lEFwAIwkbtCh7I-dJpcuk61gV_sqhZXAN70JAny2crIW0NQjv3xxfH73DCclevlkh46c0gSeQXOe3Rl8OWmPfvyrB0Xgy_MclTueiKVsWzgdOkswpAN6EMgZVt-dcc7L5HKexiojqM0lCE8G5ElZJqsqcSdaqTa1SeZmuREFiJeuXQvFuJSqmLITF0d0INBcxQg5EVdQDsllUTz5T8-TlRw7ieZwY1u9osFqP667uGT03U2tjLiraJHk4dtsUjknI6gQ199xntGOdD9fOQL-BIT1ZjsfnRNq0TAqNQeNuI1CHJ_6XIdoSs7gnIQh1dbMHFuKuVylqPCiskINyccp3G-wkMMzKCom-rWFE_LgDFzRnTXO4Fcm0nbMe_Ihs8RH3olPiniUaxQMkm5HfNrkIBDF84wFIQCDVyM3glWw_ZdI2zKN0cK47haAg8V_9N0dS7hAuCVtmIrtVeAPEsBe4Ku6RMK3neWoIUEIQGkWbXgBMs8ultDOLYwc1bEZ3oKpOMmfWnvIgi4usvkQyKgqJ_vV5G78u2OIhV2Ykmbts_iTlCcorKYswNxD4sh3uhHnFa7y0kdBQPovVnT7EM12qqHCCKRgEXW2rDbpC1ivfnTJZcP96pD7gxSn7b4cwzUJo8fWUYgzr3BFO9hxgjmChyVKXlSQVGJPu4jmeWeNPjRJCK8TUzBjWaZ-yqLPHvMjvocS6Z3pr5fJJdEbLPgLYSMGOuQtENr43dWRb_HQc7vE2VgS8N8PXHVo2KHNYLFHewF-_0Wsrxxty1gsYBfzdxYkIdYcM6-HeR7pyx4iTVrJx7x4BqL4Qe4TqHU6RSeO0i_b0jb8-HTkSnJYKA_IuY_CGZfJCN479ZzDAy97_60RdFJmtOKkdXC_GIdqsB7sOr2PhrVJTo0MdcC_6NVRr8HITge3xc7LHcnhWNn29C0NS4KYcUrLz71jUNEq-n2h52COrq6eOKr3N2hBL2kTnJWD1k2X0KTX97JP8VSMeWfnmHt4vi_LrTwr3yU4SsV58bZ9MPpMToTAwpDdfD2anLAo_KzdNEQn5HV6rZ3XZOJyz0fHuFT0FhY-C_kj6FFiJQlTBQKPyRJ6jEa0XqWSyj7XPmye5h4hAcW5KLq3iRL6xx0Cie661aBi6vQMc-g4EI3nlUz8Sh14QhtTeVYhMI9ORwtdjCKuYG-_VzTh3OScMQ-ixf88vGzjYiXGCqinRpZbXfkALu54ra_i6Q6f72UVZzYkF5VoQsKby6U9ag0Ozls0X7uMEOq_os4uKAKRnofQL2SqJBtmYwwMnLTDdnRdz08VbjupZKAk9pGeRKJkVRxdTfzbXCbiRdugPQcVm_ONyBEDuiHpLJVZjZtUJP90QbZ2oExI8WwNDJt50ZP84eTOYxv64XR4TkCJ27QBz-xOcYmqvQy0JTbUpuF18wXqBsWkUjXdtrfTdakjet6QM7RTyK92gALKSqr3u2UoE92b-A2_O3C5j41J44RVc1gJOVD13xHlk2uyUve3QlBlRJ5OdtDuGnCAkJ7JVB1kfmoLWx0vCLCzFp1M4kWUi_Culrwz0305VD9qD2EdELvWwFFu9X7riUoJLxsC00oLJarpdUlSCQ2Wi72WIaUV3lHfIH2bS7u90xyFRCwR-yXXm_S2OJM94kf7mzXSEIEQLIL8K9M1srXcw5kCRO5POHPpgQWmid12Fs9MpAmYG18SeTvUpKyMsaRfuNQZPyNWdN1MkR9ScJHH0r8AiH7EihtuepYLOVlQcAu_yooCgfDixA3afH4JXR9FA3xax4pIiq9ibMPpOnD-AJPDJfqYmm6_tv8CF5SQ2xoaepu0PSxZzV1W7jCH7mHOuoR63HJOCB0Scypt3tsQAXRdS8p4U_GRBZFSRcf4C7hwyuK9UUai0U06IuNtnJHsP0HHqvTAFO4bJV-QcNtCYlImwh-7hg_-doMW9VtVpZhowMKP0ee--8hIm8Mz-F3YDa3Y_F3iVrOyEpHHveMPUwIHcp4X7IuZXyY-1hjCH0-wDFrCzD7XJTFZoT7UxdY3Ju9_ehTheJ1cSSh3sQHodqffD10sMfpeYaOnvUsFV7Nq10JHmh5PTqAykEp5B66pvm7DahF8rkgPO2EY_f0Oc1-yk9Kd-3f8WzJxhEnu0OrQNRPZvE1xs3TvALHqOqbrbEPP_bMdAg2FYxxTCx9bt-VFqPdphyTd-wJYIYGDB9WtLINrnUPGc5KlxbtuECM4kBh2LF4H4CDe2CluJY-pQuYx4pUwdEykRS58eOJBkh0fx5-iq8CWglUgOOWPBz665BOXJizRtMpCd8jLleCU5xHSDVFMdXfYTkfeT2Y1KgxfkZUimrN9LXQN9Sz2gLiXgKIuu5IcpY-sJEMjtu3rqtrjSR7Lgnn2N_EFCJK4Y0DJ9CRdl_qLHUqOn1rbJ5VRu-LBSh8jOvFMWoSZGvko3DVuJbhAXDl-bd6I31zsPUfrVstYYQJEGM9HnQZrnDBKtpJQgNcsiWtIjItt6SL4OFLcKDRYmLYF32uk9JovINAuU5x_bzSTFbQHYNW9MdTqcoEvw_kqGOVm63wRKGCHV8kpUwFRANvX1sgmUA16t8sZjS-u_p5lUO919w6dNYESNpFXrxLcfPdWS0Ls0ntnMVLjnMHM3rkNkZT3zsMkdIlULhLt5Sje_KxmPIklJCfHdfYiJscUQtY-OIJkKyGrHJgN4gUchKBr_ZSFM6SDbMLaOMzSnp9iop670z_B1hUzQnL5H8Sy7-0G_Q7OIcY6_awiMeEjhGV1yrdY00Kg0GVQmMV9hpGQ03HjAEicjlVGk2A2-yynWXMB6WZ43JE3njS1dJM7_x1CSp3qb6Zw6ix1YT_ppD3pvwl5-GH_sBwXS16XjZzx9t7qGCDxG3gisvvk9tUQb6-ZGgZRhyGBFUSfn0a_E8j_DgbDuCra5Os9Z2VAWd17kI3-5BrdubR8gIeZBuH-2Gp-i53uLHlNnYx2KpqUtWfRqC5fzkHSjs7WEE9CkZ9n-su3kvP6AYF1budbRejxcpOLC-_wXoIEyPlkGauewpSCg1UMruL9aPgLdVbMC0TsAu9Jf0LNipGXAiaKaYD8AgO6SStGFdWXIrA4c3WGRkXkHF2K6ubBW6f9ror9ho6uo3GBbIYceIhR0Tlms_cX_WM6FoMouZ_4kBRbtVXnQLMXvj4jyDvnO2UCkJHfksRV7Bp-GEH218jJFWUq_Ew1T_BYuR2hlyi_t8tLADE4vLKyk.9lIUTW1h3nhpjOSmG9f8IA";
+  authData.deviceRenderOptions = {
+    sdkUiType: [
+      "01",
+      "02",
+      "03",
+      "04"
+    ],
+    sdkInterface: "01"
+  };
+  authData.sdkEphemPubKey = {
+    kty: "EC",
+    crv: "P-256",
+    x: "bTFbB8_0RrfzygfRKZoaYePzz7K18Ehq0ed6DeOttGU",
+    y: "xLl_I7QMJD0rylQTSLtxzNQYmSwTLWh-s6RnEbPk-xc"
+  };
+  authData.sdkMaxTimeout = "60";
+  authData.sdkReferenceNumber = "3DS_LOA_SDK_NSOF_020200_00492";
+  authData.sdkTransID = uuid_gen();
+
+  function onClick() {
+
+    showSpinner();
+
+    try {
+
+      var authData = JSON.parse($('#inputArea').val());
+      console.log("authData ", authData);
+
+      if (authData.acctNumber) {
+        showCardLogo(authData.acctNumber);
+      }
+
+      authData.messageVersion = $('#messageVersion2-2').is(':checked') ? "2.2.0" : "2.1.0";
+
+      var transType = $("input[name=dsChannelForm]:checked").val();
+      app(authData, _showData, transType);
+
+    } catch (e) {
+      console.log("error: ", e);
+      showError(e);
+    }
+
+  }
+
+  function _showData(type, data) {
+    showOutputDiv();
+    $('#outputArea').empty().text(JSON.stringify(data, undefined, 4));
+  }
+
+  function showError(error) {
+    showOutputDiv();
+    $('#outputArea').empty().text(error);
+  }
+
+  function showOutputDiv() {
+    $('#testButton').removeClass('d-none');
+    $('#processButton').addClass('d-none');
+    $('#outputDiv').removeClass('d-none');
+    $('#spinner').addClass('d-none');
+  }
+
+  function showSpinner() {
+    $('#testButton').addClass('d-none');
+    $('#processButton').removeClass('d-none');
+    $('#outputDiv').addClass('d-none');
+    $('#spinner').removeClass('d-none');
+  }
+
+  /**
+   * Temporary UUID generator. Only used for demo
+   * @returns {string}
+   */
+  function uuid_gen() {
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+    }
+
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+        s4() + '-' + s4() + s4() + s4();
+  }
+
+  $(document).ready(function () {
+    $('#inputArea').empty().text(JSON.stringify(authData, undefined, 4));
+    showOutputDiv();
+  });
+
+</script>
+</body>
+</html>

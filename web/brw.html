@@ -1,0 +1,801 @@
+<!--
+  ~ * Copyright (C) GPayments Pty Ltd - All Rights Reserved
+  ~ * Copying of this file, via any medium, is subject to the
+  ~ * ActiveServer End User License Agreement (EULA)
+  ~ *
+  ~ * Proprietary code for use in conjunction with GPayments products only
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ *
+  ~ * Written by GPayments <techsupport@gpayments.com>, 2020
+  ~
+  ~
+  -->
+
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8"/>
+  <title>3DSecure 2.0 Authentication</title>
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+        integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous">
+</head>
+<body>
+
+{{>contents/nav_bar}}
+
+<div class="container">
+  <div class="row h-100 card-row">
+    <div class="col-lg-9">
+
+      <div class="card">
+        <div class="card-header">
+          <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="basicInfoTab" data-toggle="tab" href="#basicInfo"
+                 role="tab"
+                 aria-controls="basicInfo" aria-selected="true">Basic Info</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="cardholderInfoTab" data-toggle="tab" href="#cardholderInfo"
+                 role="tab"
+                 aria-controls="cardholderInfo" aria-selected="false">Cardholder</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="browserInfoTab" data-toggle="tab" href="#browserInfo"
+                 role="tab"
+                 aria-controls="browserInfo" aria-selected="false">Browser Info</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="additionalInfoTab" data-toggle="tab" href="#additionalInfo"
+                 role="tab"
+                 aria-controls="additionalInfo" aria-selected="false">Additional Risk</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="testOptionsTab" data-toggle="tab" href="#testOptions"
+                 role="tab"
+                 aria-controls="testOptions" aria-selected="false">Test Options</a>
+            </li>
+
+          </ul>
+        </div>
+
+        <div class="card-body">
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="basicInfo" role="tabpanel"
+                 aria-labelledby="basicInfoTab">
+              <div id="required-info-div">
+
+                {{>contents/channel}}
+
+                <div>
+                  <br>
+                  <h3 class="mb-3">Required Fields</h3>
+                  <hr>
+                  <dl class="row">
+                    <div class="col-sm-12" id="customizeCollapse">
+                      <div class="card card-body">
+                        <dl class="row">
+                          <dd class="col-sm-2">
+                            <label class="btn font-weight-bold"
+                                   for="providerSelect">Provider:</label>
+                          </dd>
+                          <div class="col-sm-3">
+                            <select id="providerSelect" class="form-control input-small"
+                                    onchange="onChangeProvider()">
+                            </select>
+                          </div>
+                          <dd class="col-sm-2">
+                            <label class="btn font-weight-bold"
+                                   for="scenarioSelect">Scenario:</label>
+                          </dd>
+                          <div class="col-sm-5">
+                            <select id="scenarioSelect" class="form-control input-small"
+                                    onchange="showCard()">
+                            </select>
+                          </div>
+                        </dl>
+                      </div>
+                    </div>
+
+
+                    <dt class="col-sm-4">Account Number <span class="required">*</span></dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="acctNumber" class="form-control"
+                             value="4100000000000100"
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Merchant ID <span class="required">*</span></dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="merchantId" class="form-control"
+                             value="123456789012345"
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Authentication Indicator <span class="required">*</span>
+                    </dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="authenticationInd" list="authenticationIndList"
+                             class="form-control" value="01"/>
+                      <datalist id="authenticationIndList">
+                        <option value="01">Payment transaction (01)</option>
+                        <option value="02">Recurring transaction (02)</option>
+                        <option value="03">Instalment transaction (03)</option>
+                        <option value="04">Add card (04)</option>
+                        <option value="05">Maintain card (05)</option>
+                        <option value="06">Cardholder verification (06)</option>
+                      </datalist>
+                    </dd>
+
+                    <dt class="col-sm-4">Message Category <span class="required">*</span>
+                    </dt>
+                    <dd class="col-sm-8">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="messageCategoryForm"
+                               id="mess-cate-pa" value="pa" checked>
+                        <label class="form-check-label" for="mess-cate-pa">Payment Auth</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="messageCategoryForm"
+                               id="mess-cate-npa" value="npa">
+                        <label class="form-check-label" for="mess-cate-npa">Non-payment Auth</label>
+                      </div>
+                    </dd>
+                  </dl>
+                </div>
+                <div>
+                  <br>
+                  <h3 class="mb-3">Additional Fields</h3>
+                  <hr>
+                  <dl class="row">
+                    <dt class="col-sm-4">Card Scheme Override</dt>
+                    <dd class="col-sm-8">
+                      <select id="cardScheme" class="form-control">
+                        <option value="" selected></option>
+                        <option value="EFTPOS">eftpos</option>
+                        <option value="MIR">Mir</option>
+                        <option value="BCARD">Bcard</option>
+                        <option value="UNIONPAY">UnionPay</option>
+                      </select>
+                    </dd>
+
+                    <dt class="col-sm-4">Purchase Amount</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="purchaseAmount" class="form-control"
+                             value="100"
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Purchase Currency</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="purchaseCurrency" class="form-control"
+                             value="036"
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Account ID</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="acctID" class="form-control"
+                             value="personal account"
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Account Type</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="acctType" list="acctTypeList" class="form-control"
+                             value="03"/>
+                      <datalist id="acctTypeList">
+                        <option value="01">Not Applicable (01)</option>
+                        <option value="02">Credit (02)</option>
+                        <option value="03">Debit (03)</option>
+                      </datalist>
+                    </dd>
+
+                    <dt class="col-sm-4">Expiry Date (YYMM)</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="cardExpiryDate" class="form-control"
+                             value=""
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Transaction Type</dt>
+                    <dd class="col-sm-8">
+                      <select id="transType" class="form-control">
+                        <option value=""></option>
+                        <option value="01" selected>Goods/Service Purchase (01)</option>
+                        <option value="03">Check Acceptance (03)</option>
+                        <option value="10">Account Funding (10)</option>
+                        <option value="11">Quasi-Cash Transaction (11)</option>
+                        <option value="28">Prepaid Activation and Load (28)</option>
+                      </select>
+                    </dd>
+
+                    <dt class="col-sm-4">Challenge Indicator</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="challengeInd" list="challengeIndList"
+                             class="form-control" value="01"/>
+                      <datalist id="challengeIndList">
+                        <option value="01">No preference (01)</option>
+                        <option value="02">No challenge requested (02)</option>
+                        <option value="03">Challenge requested: 3DS Requestor Preference (03)
+                        </option>
+                        <option value="04">Challenge requested: Mandate (04)</option>
+                        <option value="05">No challenge requested (transactional risk analysis is
+                          already performed) (05)
+                        </option>
+                        <option value="06">No challenge requested (Data share only) (06)</option>
+                        <option value="07">No challenge requested (strong consumer authentication is
+                          already performed) (07)
+                        </option>
+                        <option value="08">No challenge requested (utilise whitelist exemption if no
+                          challenge required) (08)
+                        </option>
+                        <option value="09">Challenge requested (whitelist prompt requested if
+                          challenge required) (09)
+                        </option>
+                      </datalist>
+                    </dd>
+
+                    <dt class="col-sm-4">Purchase Date</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="purchaseDate" class="form-control"
+                             value=""
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Purchase Instalment Data</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="purchaseInstalData" class="form-control"
+                             value=""
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Recurring Expiry</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="recurringExpiry" class="form-control"
+                             value=""
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">Recurring Frequency</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="recurringFrequency" class="form-control"
+                             value=""
+                      />
+                    </dd>
+
+                    <dt class="col-sm-4">3DS Requestor Auth Method Indicator</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="threeDSReqAuthMethodInd" class="form-control"
+                             value=""/>
+                    </dd>
+
+                    <dt class="col-sm-4">3DS Requestor Decoupled Max Time</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="threeDSRequestorDecMaxTime" class="form-control"
+                             value=""/>
+                    </dd>
+
+                    <dt class="col-sm-4">3DS Requestor Decoupled Request Indicator</dt>
+                    <dd class="col-sm-8">
+                      <select id="threeDSRequestorDecReqInd" class="form-control">
+                        <option value="" selected></option>
+                        <option value="Y">Decoupled Authentication is supported and preferred (Y)
+                        </option>
+                        <option value="N">Do not use Decoupled Authentication (N)</option>
+                      </select>
+                    </dd>
+
+                    <dt class="col-sm-4">Whitelist Status</dt>
+                    <dd class="col-sm-8">
+                      <select id="whiteListStatus" class="form-control">
+                        <option value="" selected></option>
+                        <option value="Y">3DS Requestor is whitelisted by cardholder (Y)</option>
+                        <option value="N">3DS Requestor is not whitelisted by cardholder (N)
+                        </option>
+                        <option value="E">Not eligible as determined by issuer (E)</option>
+                        <option value="P">Pending confirmation by cardholder (P)</option>
+                        <option value="R">Cardholder rejected (R)</option>
+                        <option value="U">Whitelist status unknown, unavailable, or does not apply
+                          (U)
+                        </option>
+                      </select>
+                    </dd>
+
+                    <dt class="col-sm-4">Whitelist Status Source</dt>
+                    <dd class="col-sm-8">
+                      <input type="text" id="whiteListStatusSource" class="form-control"
+                             value=""/>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="cardholderInfo" role="tabpanel"
+                 aria-labelledby="cardholderInfoTab">
+              <!--Cardholder Information -->
+              {{>contents/cardholder_info}}
+            </div>
+            <div class="tab-pane fade" id="browserInfo" role="tabpanel"
+                 aria-labelledby="browserInfoTab">
+              <!--BrowserInfo/RBC Options -->
+              {{>contents/browser_info}}
+            </div>
+            <div class="tab-pane fade" id="additionalInfo" role="tabpanel"
+                 aria-labelledby="additionalInfoTab">
+              <div id="additional-info-div">
+
+                <!--AcctInfo-->
+                {{>contents/acct_info}}
+
+
+                {{>contents/authentication_info}}
+
+                {{>contents/prior_auth_info}}
+
+                <!--MerchantRiskIndicator-->
+                {{>contents/merchant_risk_indicator}}
+
+              </div>
+            </div>
+            <div class="tab-pane fade" id="testOptions" role="tabpanel"
+                 aria-labelledby="testOptionsTab">
+              <div id="test-options-div">
+                <h3 class="mb-3">API Options</h3>
+                <hr>
+                <dl class="row">
+                  <dt class="col-sm-4">Api Version <span class="required">*</span>
+                  </dt>
+                  <dd class="col-sm-8">
+                    <select id="apiVersionForm" class="form-control"
+                            onchange="apiVersionSelect(this)">
+                    </select>
+                  </dd>
+                  <dt class="col-sm-4">Force Message Version</dt>
+                  <dd class="col-sm-8">
+                    <input type="checkbox" id="forceMessageVersion">
+                  </dd>
+                </dl>
+                <h3 class="mb-3">Merchant Override</h3>
+                <hr>
+                <dl class="row">
+                  <dt class="col-sm-12 text-secondary" style="margin-bottom: .5rem">3DS requestor
+                    can
+                    override the values set in the merchant profile for the following fields,
+                    however the "Allow merchant override" feature must first be enabled in
+                    the ActiveServer security settings page.
+                    <br><br>
+                    The Merchant Name field is the highest priority. If it is not presented,
+                    Active Server will try to load the DS-specific overriding value from the merchant
+                    profile, if that is also not presented, then the default Merchant Name from
+                    the merchant profile will be used.
+                  </dt>
+
+                  <dt class="col-sm-4">Override Acquirer BIN</dt>
+                  <dd class="col-sm-8">
+                    <input type="text" id="acquirerBIN" class="form-control"/>
+                  </dd>
+
+                  <dt class="col-sm-4">Override Merchant Name</dt>
+                  <dd class="col-sm-8">
+                    <input type="text" id="merchantName" class="form-control" value=""/>
+                  </dd>
+
+                  <dt class="col-sm-4">Override 3DS Requestor Name</dt>
+                  <dd class="col-sm-8">
+                    <input type="text" id="threeDSRequestorName" class="form-control"/>
+                  </dd>
+
+                  <dt class="col-sm-4">Override 3DS Requestor ID</dt>
+                  <dd class="col-sm-8">
+                    <input type="text" id="threeDSRequestorID" class="form-control"/>
+                  </dd>
+
+                  <dt class="col-sm-4">Override Merchant Category</dt>
+                  <dd class="col-sm-8">
+                    <input type="text" id="mcc" class="form-control"/>
+                  </dd>
+                </dl>
+                <h3 class="mb-3">Challenge Options</h3>
+                <hr>
+                <dl class="row">
+                  <dt class="col-sm-12 text-secondary" style="margin-bottom: .5rem">3DS requestor
+                    can decide whether to proceed the challenge or not. By selecting the following
+                    checkbox, the requestor will cancel the challenge.
+                  </dt>
+
+                  <dt class="col-sm-4">Cancel Challenge</dt>
+                  <dd class="col-sm-8">
+                    <input type="checkbox" id="cancelChallengeCheckbox"
+                           onchange="toggleCheckbox(this)">
+                  </dd>
+
+                  <dt class="col-sm-4">Cancel Reason</dt>
+                  <dd class="col-sm-8">
+                    <select id="cancelReason" class="form-control" disabled>
+                      <option value="CReqNotSent" selected>CReq Not Sent</option>
+                      <option value="AuthResultNotDelivered">Auth Result Not Delivered</option>
+                      <option value="">No Reason Sent</option>
+                    </select>
+                  </dd>
+
+                  <dt class="col-sm-12 text-secondary"
+                      style="padding-top: .5rem;padding-bottom: .5rem">3DS requestor
+                    can decide the challenge window size by selecting the following
+                    options. 3DS requestor needs to make sure the iframe container has the same size
+                    as defined below.
+                  </dt>
+
+                  <dt class="col-sm-4">Challenge Window Size (width x height in pixels)</dt>
+                  <dd class="col-sm-8">
+                    <select id="challengeWindowSize" class="form-control">
+                      <option value="" selected></option>
+                      <option value="01">250 x 400 (01)</option>
+                      <option value="02">390 x 400 (02)</option>
+                      <option value="03">500 x 600 (03)</option>
+                      <option value="04">600 x 400 (04)</option>
+                      <option value="05">Full screen (05)</option>
+                    </select>
+                  </dd>
+
+                  <dt class="col-sm-12 text-secondary"
+                      style="padding-top: .5rem;padding-bottom: .5rem">3DS requestor can specify here any arbitrary session data it would
+                    like to access after the final CRes has been received. It should be encoded to
+                    Base64Url and will be passed through the challenge flow unchanged,
+                    then returned to the requestor for re-use.
+                    <br><br>
+                    Important: Invalid session data will be rejected by Active Server to ensure
+                    malicious inputs are not passed along to other components in the 3DS chain.
+                    Any padding will be converted to URL friendly characters, please see the
+                    3ds-web-adapter for more details.
+                  </dt>
+
+                  <dt class="col-sm-4">3DS Session Data</dt>
+                  <dd class="col-sm-8">
+                    <input type="text" id="threeDSSessionData" class="form-control"/>
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Action Button-->
+    <div class="col-lg-3 mb-4">
+      <ul class="list-group mb-3">
+        <div>
+          <div class="btn-group btn-block" id="do3DS">
+            <!--button to do 3ds method-->
+          </div>
+        </div>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+{{>contents/deps}}
+<script src="/js/test-lab-scenarios.js"></script>
+
+<script>
+
+  showActionButton("testButton", "Test BRW", "onClick");
+  genApiOption();
+
+  function onClick() {
+
+    var apiVersion = getApiVersion();
+    switch (apiVersion) {
+      case "v1":
+        goApiV1();
+        break;
+      case "v2":
+        goApiV2();
+        break;
+      default:
+        goApiV2();
+        break;
+
+    }
+
+  }
+
+  function goApiV1() {
+    var sessionData = genSessionData();
+    sessionData.messageCategory = $("input[name=messageCategoryForm]:checked").val();
+    sessionData.transType = $("input[name=dsChannelForm]:checked").val();
+
+    sessionStorage.setItem("sessionData", JSON.stringify(sessionData));
+
+    window.location.href = "/v1/process";
+  }
+
+  function goApiV2() {
+    var sessionData = genSessionData();
+    sessionData.authData.messageCategory = $("input[name=messageCategoryForm]:checked").val();
+    sessionData.transType = $("input[name=dsChannelForm]:checked").val();
+    var messageVersion = $("input[name=messageVersionForm]:checked").val();
+    var forceMessageVersion = $("input[id=forceMessageVersion]").prop('checked');
+    if (messageVersion) {
+      if (forceMessageVersion && messageVersion === "2.2.0") {
+        sessionData.authData.forceMessageVersion = true;
+      }
+      sessionData.authData.messageVersion = messageVersion;
+    }
+
+    var merchantOverride = {};
+    var acquirerBIN = $('#acquirerBIN').val();
+    var threeDSRequestorName = $('#threeDSRequestorName').val();
+    var threeDSRequestorID = $('#threeDSRequestorID').val();
+    var mcc = $('#mcc').val();
+
+    if (acquirerBIN) {
+      merchantOverride.acquirerBIN = acquirerBIN;
+    }
+
+    if (threeDSRequestorName) {
+      merchantOverride.threeDSRequestorName = threeDSRequestorName;
+    }
+
+    if (threeDSRequestorID) {
+      merchantOverride.threeDSRequestorID = threeDSRequestorID;
+    }
+
+    if (mcc) {
+      merchantOverride.mcc = mcc;
+    }
+
+    sessionData.authData.merchantOverride = merchantOverride;
+
+    sessionStorage.setItem("sessionData", JSON.stringify(sessionData));
+
+    window.location.href = "/v2/process";
+  }
+
+  function genSessionData() {
+    var sessionData = {};
+    sessionData.channel = "brw";
+    sessionData.authData = genAuthData();
+    sessionData.backButtonType = "toBrw";
+    sessionData.options = getTestOptions();
+    return sessionData;
+  }
+
+  function genAuthData() {
+    var authData = {};
+
+    //Required fields
+    var acctNumber = $('#acctNumber').val();
+    if (acctNumber) {
+      authData.acctNumber = acctNumber;
+    }
+
+    var authenticationInd = $('#authenticationInd').val();
+    if (authenticationInd) {
+      authData.authenticationInd = authenticationInd;
+    }
+
+    var merchantId = $('#merchantId').val();
+    if (merchantId) {
+      authData.merchantId = merchantId;
+    }
+
+    //Additional Fields
+    var cardScheme = $('#cardScheme').val();
+    if (cardScheme) {
+      authData.cardScheme = cardScheme;
+    }
+
+    var purchaseAmount = $('#purchaseAmount').val();
+    if (purchaseAmount) {
+      //use Math.round() to avoid problems of javascript processing decimal math
+      authData.purchaseAmount = Math.round(purchaseAmount * 100); //cent to dollar
+    }
+
+    var purchaseCurrency = $('#purchaseCurrency').val();
+    if (purchaseCurrency) {
+      authData.purchaseCurrency = purchaseCurrency;
+    }
+
+    var acctID = $('#acctID').val();
+    if (acctID) {
+      authData.acctID = acctID;
+    }
+
+    var acctType = $('#acctType').val();
+    if (acctType) {
+      authData.acctType = acctType;
+    }
+
+    var cardExpiryDate = $('#cardExpiryDate').val();
+    if (cardExpiryDate) {
+      authData.cardExpiryDate = cardExpiryDate;
+    }
+
+    var priorTransID = $('#priorTransID').val();
+    if (priorTransID) {
+      authData.priorTransID = priorTransID;
+    }
+
+    var transType = $('#transType').val();
+    if (transType) {
+      authData.transType = transType;
+    }
+
+    var challengeInd = $('#challengeInd').val();
+    if (challengeInd) {
+      authData.challengeInd = challengeInd;
+    }
+
+    var purchaseDate = $('#purchaseDate').val();
+    if (purchaseDate) {
+      authData.purchaseDate = purchaseDate;
+    }
+
+    var purchaseInstalData = $('#purchaseInstalData').val();
+    if (purchaseInstalData) {
+      authData.purchaseInstalData = purchaseInstalData;
+    }
+
+    var recurringExpiry = $('#recurringExpiry').val();
+    if (recurringExpiry) {
+      authData.recurringExpiry = recurringExpiry;
+    }
+
+    var recurringFrequency = $('#recurringFrequency').val();
+    if (recurringFrequency) {
+      authData.recurringFrequency = recurringFrequency;
+    }
+
+    //Cardholder Information
+    // load cardholder_info
+    var cardHolderInfo = getCardHolderInfo();
+    if (cardHolderInfo) {
+      authData.cardHolderInfo = cardHolderInfo
+    }
+
+    //Additional Information
+    // load acct_info
+    var acctInfo = getAcctInfo();
+    if (acctInfo) {
+      authData.acctInfo = acctInfo;
+    }
+    // load authentication_info
+    var authenticationInfo = getAuthenticationInfo();
+    if (authenticationInfo) {
+      authData.authenticationInfo = authenticationInfo;
+    }
+    // load merchant_risk_indicator
+    var merchantRiskIndicator = getMerchantRiskIndicator();
+    if (merchantRiskIndicator) {
+      authData.merchantRiskIndicator = merchantRiskIndicator;
+    }
+    // load merchantName
+    var merchantName = $('#merchantName').val();
+    if (merchantName) {
+      authData.merchantName = merchantName;
+    }
+
+    var threeDSReqAuthMethodInd = $('#threeDSReqAuthMethodInd').val();
+    if (threeDSReqAuthMethodInd) {
+      authData.threeDSReqAuthMethodInd = threeDSReqAuthMethodInd;
+    }
+
+    var threeDSRequestorDecMaxTime = $('#threeDSRequestorDecMaxTime').val();
+    if (threeDSRequestorDecMaxTime) {
+      authData.threeDSRequestorDecMaxTime = threeDSRequestorDecMaxTime;
+    }
+
+    var threeDSRequestorDecReqInd = $('#threeDSRequestorDecReqInd').val();
+    if (threeDSRequestorDecReqInd) {
+      authData.threeDSRequestorDecReqInd = threeDSRequestorDecReqInd;
+    }
+
+    var whiteListStatus = $('#whiteListStatus').val();
+    if (whiteListStatus) {
+      authData.whiteListStatus = whiteListStatus;
+    }
+
+    var whiteListStatusSource = $('#whiteListStatusSource').val();
+    if (whiteListStatusSource) {
+      authData.whiteListStatusSource = whiteListStatusSource;
+    }
+
+    setCollectedBrowserInfo(authData);
+
+    return authData;
+  }
+
+  /*
+   Checks to see if RBC will be used. This will parse the client-provided BrowserInfo and set the
+   flag to skip the default BrowserInfo collection (skipAutoBrowserInfoCollect)
+   */
+  function setCollectedBrowserInfo(authData) {
+    if ($("#useRbc").prop("checked")) {
+      let brwInfo;
+      try {
+        brwInfo = JSON.parse($('#brwInfoInput').val());
+      } catch (e) {
+        alert("Error parsing BrowserInfo" + e);
+      }
+      authData.skipAutoBrowserInfoCollect = true;
+      authData.browserInfoCollected = brwInfo;
+    } else {
+      authData.skipAutoBrowserInfoCollect = false;
+      authData.browserInfoCollected = undefined;
+    }
+  }
+
+  function getTestOptions() {
+    var options = {};
+    if ($("#cancelChallengeCheckbox").prop("checked")) {
+      options.cancelChallenge = true;
+      var cancelReason = $("#cancelReason").val();
+      if (cancelReason) {
+        options.cancelReason = cancelReason;
+      }
+    }
+    var challengeWindowSize = $("#challengeWindowSize").val();
+    if (challengeWindowSize) {
+      options.challengeWindowSize = challengeWindowSize;
+    }
+    var threeDSSessionData = $('#threeDSSessionData').val();
+    if (threeDSSessionData) {
+      options.threeDSSessionData = threeDSSessionData;
+    }
+    return options;
+  }
+
+  function toggleCheckbox(checkbox) {
+    if (checkbox.id === 'cancelChallengeCheckbox') {
+      if (checkbox.checked) {
+        $("#cancelReason").prop("disabled", false);
+      } else {
+        $("#cancelReason").prop("disabled", true);
+      }
+    } else if (checkbox.id === 'useRbc') {
+      if (checkbox.checked) {
+        $("#brwInfoInput").prop("disabled", false);
+      } else {
+        $("#brwInfoInput").prop("disabled", true);
+      }
+    }
+  }
+
+  function apiVersionSelect(option) {
+    var apiVersion = option.value;
+    changeApiVersion(apiVersion, "testButton", "Test BRW");
+  }
+
+  function genApiOption() {
+    var form = $('#apiVersionForm');
+    form.empty();
+
+    apiVersions.forEach(function (item) {
+      form.append(
+          "<option value=\"" + item + "\">" + item + "</option>\n"
+      );
+    });
+  }
+
+  $(document).ready(function () {
+    $("#purchaseDate").val(moment().utc().format('YYYYMMDDHHmmss'));
+    var apiVersion = getApiVersion();
+    updateActionButtonText(apiVersion, $("#testButton"), "Test BRW");
+    $("#apiVersionForm").val(apiVersion);
+  });
+</script>
+</body>
+</html>
