@@ -159,14 +159,15 @@ function getCardHolderInfo(channel) {
     cardHolderInfo.cardholderName = cardholderName;
   }
 
-  //cardHolderInfo.mobilePhone = {};
-  //var mobileNumberSubscriber = $('#mobileNumberSubscriber').val();
-  //if (mobileNumberSubscriber) {
-  //  cardHolderInfo.mobilePhone.subscriber = mobileNumberSubscriber;
-  //}
+  cardHolderInfo.mobilePhone = {};
+  var mobileNumberSubscriber = $('#mobileNumberSubscriber').val();
+  if (mobileNumberSubscriber) {
+   cardHolderInfo.mobilePhone.subscriber = mobileNumberSubscriber;
+  }
 
   var mobileNumberCountryCode = $('#mobileNumberCountryCode').val();
   if (mobileNumberCountryCode) {
+	  cardHolderInfo.mobilePhone = cardHolderInfo.mobilePhone || {};
     cardHolderInfo.mobilePhone.cc = mobileNumberCountryCode;
   }
 
@@ -178,6 +179,7 @@ function getCardHolderInfo(channel) {
 
   var homeNumberCountryCode = $('#homeNumberCountryCode').val();
   if (homeNumberCountryCode) {
+	  cardHolderInfo.homePhone = cardHolderInfo.homePhone || {};
     cardHolderInfo.homePhone.cc = homeNumberCountryCode;
   }
 
