@@ -33,7 +33,8 @@ function displayCart(itemList) {
           "</div>" +
           "<div class=\"col-lg-8 col-sm-8 col-8 cart-detail-product\">" +
           "<p>" + item.name + "</p>" +
-          "<span class=\"price text-info\">$" + (item.price
+          //"<span class=\"price text-info\">$" + (item.price
+          "<span class=\"price text-info\">PHP " + (item.price
           * item.quantity).toFixed(2)
           + "</span>" +
           "<span class=\"count\">Quantity: " + item.quantity + "</span>" +
@@ -45,7 +46,8 @@ function displayCart(itemList) {
   });
 
   if (totalPrice > 0) {
-    $("#totalPrice").text("Total $" + totalPrice.toFixed(2));
+    //$("#totalPrice").text("Total $" + totalPrice.toFixed(2));
+    $("#totalPrice").text("Total PHP " + totalPrice.toFixed(2));
     $("#checkoutButton").prop("disabled", false);
   }
 }
