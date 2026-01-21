@@ -295,10 +295,44 @@
   function genAuthData() {
     var authData = {};
 
+    // add browserinfo
+    authData.skipAutoBrowserInfoCollect = true;
+    // authData.browserInfoCollected = {
+    //     browserTZ: new Date().getTimezoneOffset(),
+    //     browserColorDepth: screen.colorDepth,
+    //     browserLanguage: navigator.language,
+    //     browserJavaEnabled: navigator.javaEnabled(),
+    //     browserJavascriptEnabled: true,
+    //     browserScreenWidth: screen.width,
+    //     browserScreenHeight: screen.height
+    // };
+    authData.browserInfoCollected = {
+      browserTZ: new Date().getTimezoneOffset(),
+      browserColorDepth: screen.colorDepth,
+      browserLanguage: navigator.language,
+      browserJavaEnabled: navigator.javaEnabled(),
+      browserJavascriptEnabled: true,
+      browserScreenWidth: screen.width,
+      browserScreenHeight: screen.height,
+      browserAcceptHeader: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      browserUserAgent: navigator.userAgent
+    };
+
     authData.merchantId = "102116449";
+
+    // add a transaction type
+    // 01 - Goods/Service Purchase
+    // 03 - Check Acceptance
+    // 10 - Account Funding
+    // 11 - Quasi-Cash Transaction
+    // 28 - Pre-Ordered Goods/Services
+    authData.transType = "28";
+
     authData.authenticationInd = "01";
     authData.purchaseDate = moment().utc().format('YYYYMMDDHHmmss');
-    authData.purchaseAmount = getTotalPrice(itemList) * 100; //cent to dollar
+    //authData.purchaseAmount = getTotalPrice(itemList) * 100; //cent to dollar
+    // purchase amount must be converted to string
+    authData.purchaseAmount = String(Math.round(getTotalPrice(itemList) * 100));
 
     var acctNumber = $('#acctNumber').val();
     if (acctNumber) {
@@ -315,10 +349,20 @@
       authData.purchaseCurrency = purchaseCurrency;
     }
 
+    // var cardHolderInfo = getCardHolderInfo();
+    // if (cardHolderInfo) {
+    //   authData.cardHolderInfo = cardHolderInfo
+    // }
+    // Modified to remove empty mobilePhone object
     var cardHolderInfo = getCardHolderInfo();
     if (cardHolderInfo) {
-      authData.cardHolderInfo = cardHolderInfo
+        // Remove empty mobilePhone object
+        if (cardHolderInfo.mobilePhone && Object.keys(cardHolderInfo.mobilePhone).length === 0) {
+            delete cardHolderInfo.mobilePhone;
+        }
+        authData.cardHolderInfo = cardHolderInfo;
     }
+
 
     return authData;
   }
